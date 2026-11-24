@@ -4,22 +4,13 @@
 
 class shiftadmin::database inherits shiftadmin::params {
 
-    package { "mysql-server":
-        ensure  => installed,
-        tag     => [ "db-packages" ],
-    }
-
-    package { "mysql-client":
-        ensure  => installed,
-        tag     => [ "db-packages" ],
-    }
-
-    package { "python3-mysqldb":
-        ensure  => installed,
-        tag     => [ "db-packages" ],
-    }
-
-    package { "python3-mysql.connector":
+    $db_pkgs= [
+        "mysql-server",
+        "mysql-client",
+        "python3-mysqldb",
+        "python3-mysql.connector",
+    ]
+    package { $db_pkgs :
         ensure  => installed,
         tag     => [ "db-packages" ],
     }

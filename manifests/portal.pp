@@ -4,17 +4,12 @@
 
 class shiftadmin::portal inherits shiftadmin::params {
 
-    package { "apache2":
-        ensure  => installed,
-        tag     => [ "portal-packages" ],
-    }
-
-    package { "libapache2-mod-wsgi-py3":
-        ensure  => installed,
-        tag     => [ "portal-packages" ],
-    }
-
-    package { "libapache2-mod-auth-openidc":
+    $web_pkgs = [
+        "apache2",
+        "libapache2-mod-wsgi-py3",
+        "libapache2-mod-auth-openidc",
+    ]
+    package { $web_pkgs :
         ensure  => installed,
         tag     => [ "portal-packages" ],
     }
@@ -26,6 +21,70 @@ class shiftadmin::portal inherits shiftadmin::params {
         hasrestart  => true,
     }
 
-    Package <| tag == 'portal-packages' |> ~> Service[ 'apache2' ]
+    file { "/etc/apache2/ssl-certs":
+        ensure   => directory,
+        owner   => "root",
+        group    => "root",
+        mode     => "0755",
+    }
+    
+    file { "/etc/apache2/ssl-certs/ca-bundle.pem":
+        ensure   => file,
+        owner    => "root",
+        group    => "root",
+        mode     => "0644",
+        content  => file("shiftadmin/ca-bundle.pem"),
+        require  => File[ "/etc/apache2/ssl-certs" ],
+        tag      => [ "portal_conffiles" ],
+    }
+
+    file { "/etc/apache2/sites-available/django.conf":
+        ensure   => file,
+        owner    => "root",
+        group    => "root",
+        mode     => "0644",
+        content  => epp("shiftadmin/django.conf.epp", {
+            cert_file   => "$cert_file",
+            key_file    => "$key_file",
+            server_name => "$server_name",
+        }),
+        tag      => [ "portal_conffiles" ],
+    }
+
+    file { "/etc/apache2/conf-available/auth_openidc.conf":
+        ensure   => file,
+        owner    => "root",
+        group    => "root",
+        mode     => "0644",
+        content  => epp("shiftadmin/auth_openidc.conf.epp", {
+            server_name     => "$server_name",
+            oidc_issuer     => "$oidc_issuer",
+            oidc_clientid   => "$oidc_clientid",
+            oidc_secret     => "$oidc_secret",
+            oidc_passphrase => "$oidc_passphrase",
+        }),
+        tag      => [ "portal_conffiles" ],
+    }
+
+    file { "/etc/apache2/sites-enabled/django.conf":
+        ensure => link,
+        target => "/etc/apache2/sites-available/django.conf",
+        require => File[ "/etc/apache2/sites-available/django.conf" ],
+    }
+
+    file { "/etc/apache2/sites-enabled/ssl.conf":
+        ensure => link,
+        target => "/etc/apache2/sites-available/ssl.conf",
+        require => Package[ "apache2" ],
+    }
+
+    file { "/etc/apache2/conf-enabled/auth_openidc.conf":
+        ensure => link,
+        target => "/etc/apache2/conf-available/auth_openidc.conf",
+        require => File[ "/etc/apache2/conf-available/auth_openidc.conf" ],
+    }
+
+    Package <| tag == 'portal-packages' |> ->  File <| tag == 'portal_conffiles' |>
+    File <| tag == 'portal_conffiles' |> ~> Service[ 'apache2' ]
 }
 

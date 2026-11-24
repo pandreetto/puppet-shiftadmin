@@ -1,0 +1,23 @@
+<%- | String $server_name,
+      String $oidc_issuer,
+      String $oidc_clientid,
+      String $oidc_secret,
+      String $oidc_passphrase
+| -%>
+
+OIDCRedirectURI https://<%= $server_name %>/redirect_uri
+
+OIDCCryptoPassphrase <%= $oidc_passphrase %>
+
+OIDCProviderMetadataURL <%= $soidc_issuer %>/.well-known/openid-configuration
+
+OIDCProviderIssuer <%= $soidc_issuer %>
+
+OIDCProviderJwksUri <%= $soidc_issuer %>/protocol/openid-connect/certs
+
+OIDCClientID <%= $soidc_clientid %>
+
+OIDCClientSecret <%= $soidc_secret %>
+
+OIDCRemoteUserClaim preferred_username
+

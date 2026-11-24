@@ -1,0 +1,58 @@
+<%- | String $cert_file,
+      String $key_file,
+      String $server_name
+| -%>
+<VirtualHost *:443>
+    ServerName <%= $server_name -%>:443
+    UseCanonicalName on
+    ServerAdmin paolo.andreett@pd.infn.it
+
+    RedirectMatch    permanent  "^/$" /dashboard
+
+    SSLEngine on
+    SSLCertificateFile      <%= $cert_file %>
+    SSLCertificateKeyFile   <%= $key_file %>
+    SSLCertificateChainFile /etc/apache2/ssl-certs/ca-bundle.pem
+    SSLCACertificateFile    /etc/ssl/certs/ca-certificates.crt
+
+    ErrorLog ${APACHE_LOG_DIR}/shiftms-error.log
+    CustomLog ${APACHE_LOG_DIR}/shiftms-access.log combined
+
+    Alias /productionfiles /usr/local/web_shift_tool/shifter/static
+
+    <Directory /usr/local/web_shift_tool/web_shift_tool>
+      Options All
+      AllowOverride All
+      Require all granted
+    </Directory>
+
+    WSGIDaemonProcess web_shift_tool python-path=/usr/local/web_shift_tool:/var/www/shiftadmin:/var/www/shiftadmin/wwwhead/pyScripts/
+
+    WSGIProcessGroup web_shift_tool
+    WSGIScriptAlias /dashboard /usr/local/web_shift_tool/web_shift_tool/wsgi.py
+    WSGIScriptAlias /monitor /usr/local/web_shift_tool/web_shift_tool/wsgi.py
+
+    <Location "/monitor">
+        Require      all granted
+        LogLevel     debug
+    </Location>
+
+    <Location "/dashboard">
+        AuthType  openid-connect
+        Require   claim iss:https://keycloak.desy.de/auth/realms/testing
+        LogLevel  debug
+    </Location>
+
+    <Location "/redirect_uri">
+        AuthType  openid-connect
+        Require   claim iss:https://keycloak.desy.de/auth/realms/testing
+        LogLevel  debug
+    </Location>
+
+    RedirectMatch    "^/$" "/dashboard"
+    RedirectMatch    "^/current_shifter/(.*)$" "/monitor/current_shifter/$1"
+    RedirectMatch    "^/prev_shifter/(.*)$" "/monitor/prev_shifter/$1"
+    RedirectMatch    "^/next_shifter/(.*)$" "/monitor/next_shifter/$1"
+
+</VirtualHost>
+
