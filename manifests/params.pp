@@ -13,6 +13,8 @@ class shiftadmin::params {
         $oidc_clientid = "b2_shift_tst"
         $oidc_secret = "CHANGEME"
         $oidc_passphrase = "CHANGEME"
+        $db_username = "shifter"
+        $db_pwd = "CHANGEME"
     }
 }
 

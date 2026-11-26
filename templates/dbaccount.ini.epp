@@ -1,0 +1,9 @@
+<%- | String $username,
+      String $passwd
+| -%>
+[mysql]
+host = localhost
+database = b2mmsdb
+user = <%= $username %>
+password = <%= $passwd %>
+
