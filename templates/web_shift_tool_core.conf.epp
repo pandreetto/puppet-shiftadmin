@@ -1,0 +1,26 @@
+<%- | String $django_secret_key,
+      Boolean $django_debug,
+      Array $allowed_hosts
+| -%>
+###############################################################################
+# DO NOT EDIT! (written by puppet)
+###############################################################################
+SECRET_KEY = '<%= $django_secret_key %>'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+<% if $django_debug == false { -%>
+DEBUG = False
+<% } else { -%>
+DEBUG = True
+<% } -%>
+
+ALLOWED_HOSTS = [
+<% $allowed_hosts.each |$a_host| { -%>
+                 '<%= $a_host %>'
+<% } -%>
+                 'localhost'
+]
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 900
+SESSION_SAVE_EVERY_REQUEST = True

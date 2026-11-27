@@ -15,6 +15,15 @@ class shiftadmin::params {
         $oidc_passphrase = "CHANGEME"
         $db_username = "shifter"
         $db_pwd = "CHANGEME"
+        $use_ldap = false
+        $django_secret_key = "CHANGEME"
+        $django_debug = true
+        $allowed_hosts = [ "shift-belle2-test.pd.infn.it" ]
+    }
+    else
+    {
+        $use_ldap = true
+        $ldap_server_uri = "ldaps://it-ldap-slave.desy.de:1636"
     }
 }
 

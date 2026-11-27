@@ -26,6 +26,12 @@
       Require all granted
     </Directory>
 
+    <Directory /usr/local/web_shift_tool/shifter/static>
+      Options All
+      AllowOverride All
+      Require all granted
+    </Directory>
+
     WSGIDaemonProcess web_shift_tool python-path=/usr/local/web_shift_tool:/var/www/shiftadmin:/var/www/shiftadmin/wwwhead/pyScripts/
 
     WSGIProcessGroup web_shift_tool

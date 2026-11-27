@@ -1,0 +1,17 @@
+<%- | String $username,
+      String $passwd
+| -%>
+###############################################################################
+# DO NOT EDIT! (written by puppet)
+###############################################################################
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'b2mmsdb',
+        'USER': '<%= $username %>',
+        'PASSWORD': '<%= $passwd %>',
+        'HOST': '127.0.0.1',
+        'PORT' : '3306',
+    }
+}
